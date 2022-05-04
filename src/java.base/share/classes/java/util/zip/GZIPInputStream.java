@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2021, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -92,21 +92,13 @@ public class GZIPInputStream extends InflaterInputStream {
     }
 
     /**
-     * Reads uncompressed data into an array of bytes, returning the number of inflated
-     * bytes. If {@code len} is not zero, the method will block until some input can be
-     * decompressed; otherwise, no bytes are read and {@code 0} is returned.
-     * <p>
-     * If <i>n</i> denotes a nonzero number of inflated bytes to return, then {@code buf[off]}
-     * through {@code buf[off+}<i>n</i>{@code -1]} will contain the uncompressed data. The
-     * elements {@code buf[off+}<i>n</i>{@code ]} through {@code buf[off+}<i>len</i>{@code -1]}
-     * are undefined (an implementation is free to change them during the inflate
-     * operation). If the return value is -1 or an exception is thrown, then the content of
-     * {@code buf[off]} to {@code buf[off+}<i>len</i>{@code -1]} is undefined.
-     *
+     * Reads uncompressed data into an array of bytes. If {@code len} is not
+     * zero, the method will block until some input can be decompressed; otherwise,
+     * no bytes are read and {@code 0} is returned.
      * @param buf the buffer into which the data is read
-     * @param off the start offset in the destination array {@code buf}
+     * @param off the start offset in the destination array {@code b}
      * @param len the maximum number of bytes read
-     * @return  the actual number of inflated bytes, or -1 if the end of the
+     * @return  the actual number of bytes read, or -1 if the end of the
      *          compressed input stream is reached
      *
      * @throws     NullPointerException If {@code buf} is {@code null}.

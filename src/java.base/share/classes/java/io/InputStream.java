@@ -199,7 +199,7 @@ public abstract class InputStream implements Closeable {
      * number of bytes actually read; these bytes will be stored in elements
      * {@code b[0]} through {@code b[}<i>k</i>{@code -1]},
      * leaving elements {@code b[}<i>k</i>{@code ]} through
-     * {@code b[b.length-1]} unaffected.
+     * {@code b[b.length-1]} undefined.
      *
      * <p> The {@code read(b)} method for class {@code InputStream}
      * has the same effect as: <pre>{@code  read(b, 0, b.length) }</pre>
@@ -239,7 +239,7 @@ public abstract class InputStream implements Closeable {
      * bytes actually read; these bytes will be stored in elements
      * {@code b[off]} through {@code b[off+}<i>k</i>{@code -1]},
      * leaving elements {@code b[off+}<i>k</i>{@code ]} through
-     * {@code b[off+len-1]} unaffected.
+     * {@code b[off+len-1]} undefined.
      *
      * <p> In every case, elements {@code b[0]} through
      * {@code b[off-1]} and elements {@code b[off+len]} through
