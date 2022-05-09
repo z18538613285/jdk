@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -165,14 +165,22 @@ public class ZipInputStream extends InflaterInputStream implements ZipConstants 
     }
 
     /**
-     * Reads from the current ZIP entry into an array of bytes.
-     * If {@code len} is not zero, the method
-     * blocks until some input is available; otherwise, no
-     * bytes are read and {@code 0} is returned.
+     * Reads from the current ZIP entry into an array of bytes, returning the number of
+     * inflated bytes. If {@code len} is not zero, the method blocks until some input is
+     * available; otherwise, no bytes are read and {@code 0} is returned.
+     * <p>
+     * If the current entry is compressed and <i>n</i> denotes a nonzero number of inflated
+     * bytes to return, then {@code b[off]} trough {@code b[off+}<i>n</i>{@code -1]} will
+     * contain the uncompressed data. The elements {@code b[off+}<i>n</i>{@code ]} through
+     * {@code b[off+}<i>len</i>{@code -1]} are undefined (an implementation is free to
+     * change them during the inflate operation). If the return value is -1 or an exception
+     * is thrown, then the content of {@code b[off]} to {@code b[off+}<i>len</i>{@code -1]}
+     * is undefined.
+     *
      * @param b the buffer into which the data is read
      * @param off the start offset in the destination array {@code b}
      * @param len the maximum number of bytes read
-     * @return the actual number of bytes read, or -1 if the end of the
+     * @return the actual number of inflated bytes, or -1 if the end of the
      *         entry is reached
      * @throws     NullPointerException if {@code b} is {@code null}.
      * @throws     IndexOutOfBoundsException if {@code off} is negative,
