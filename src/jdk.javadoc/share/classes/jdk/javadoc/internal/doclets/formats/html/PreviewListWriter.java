@@ -31,8 +31,8 @@ import javax.lang.model.element.Element;
 
 import com.sun.source.doctree.DocTree;
 
-import jdk.javadoc.internal.doclets.formats.html.markup.HtmlTree;
 import jdk.javadoc.internal.doclets.formats.html.Navigation.PageMode;
+import jdk.javadoc.internal.doclets.formats.html.markup.Text;
 import jdk.javadoc.internal.doclets.toolkit.Content;
 import jdk.javadoc.internal.doclets.toolkit.util.DocFileIOException;
 import jdk.javadoc.internal.doclets.toolkit.util.DocPath;
@@ -42,8 +42,6 @@ import jdk.javadoc.internal.doclets.toolkit.util.PreviewAPIListBuilder;
 /**
  * Generate File to list all the preview elements with the
  * appropriate links.
- *
- * @see java.util.List
  */
 public class PreviewListWriter extends SummaryListWriter<PreviewAPIListBuilder> {
 
@@ -80,7 +78,7 @@ public class PreviewListWriter extends SummaryListWriter<PreviewAPIListBuilder> 
         if (!tags.isEmpty()) {
             addPreviewComment(e, tags, desc);
         } else {
-            desc.add(HtmlTree.EMPTY);
+            desc.add(Text.EMPTY);
         }
     }
 

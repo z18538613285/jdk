@@ -402,6 +402,13 @@ public enum HtmlStyle {
 
     /**
      * The class of a {@code div} element whose content should be rendered as a table
+     * with three columns where the middle column requires less space as it only contains
+     * a release name.
+     */
+    threeColumnReleaseSummary,
+
+    /**
+     * The class of a {@code div} element whose content should be rendered as a table
      * with four columns.
      */
     fourColumnSummary,
@@ -429,6 +436,12 @@ public enum HtmlStyle {
      * inactive tab above the table.
      */
     caption,
+
+    /**
+     * The class for a {@code div} element containing a row of checkboxes to select
+     * items to view in summary tables.
+     */
+    checkboxes,
 
     /**
      * The class of an element that is part of a table header.
@@ -656,6 +669,16 @@ public enum HtmlStyle {
     // The following constants are used for items in the static and interactive search indexes.
 
     /**
+     * The class for a {@code details} element in the search page to show additional information.
+     */
+    pageSearchDetails,
+
+    /**
+     * The class for a {@code div} element in the search page which contains additional information.
+     */
+    pageSearchInfo,
+
+    /**
      * The class for a link in the static "Index" pages to a custom searchable item,
      * such as defined with an {@code @index} tag.
      */
@@ -774,6 +797,11 @@ public enum HtmlStyle {
      * The class of the {@code body} element for the page listing any preview items.
      */
     previewListPage,
+
+    /**
+     * The class of the {@code body} element for the search page.
+     */
+    searchPage,
 
     /**
      * The class of the {@code body} element for the serialized-forms page.
@@ -896,13 +924,18 @@ public enum HtmlStyle {
     classUses,
 
     /**
+     * The class for a {@code button} element to copy some page content to the clipboard.
+     */
+    copy,
+
+    /**
      * The class of an {@code a} element for a link with an external target.
      */
     externalLink,
 
     /**
-     *  The class of a {@code section} element containing a hierarchical
-     *  tree view.
+     * The class of a {@code section} element containing a hierarchical
+     * tree view.
      */
     hierarchy,
 

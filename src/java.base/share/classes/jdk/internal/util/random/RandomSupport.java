@@ -1434,7 +1434,7 @@ public class RandomSupport {
     /**
      * This class overrides the stream-producing methods (such as
      * {@link RandomGenerator#ints() ints}()) in class {@link RandomGenerator}
-     * to provide {@link Spliterator}-based implmentations that support
+     * to provide {@link Spliterator}-based implementations that support
      * potentially parallel execution.
      *
      * <p> To implement a pseudorandom number generator, the programmer needs

@@ -32,7 +32,6 @@ import jdk.javadoc.internal.doclets.toolkit.util.DocFileIOException;
 /**
  * The interface for writing class output.
  */
-
 public interface ClassWriter {
 
     /**
@@ -65,7 +64,7 @@ public interface ClassWriter {
     void addParamInfo(Content target);
 
     /**
-     * Add all super interfaces if this is an interface.
+     * Add all superinterfaces if this is an interface.
      *
      * @param target the content to which the documentation will be added
      */

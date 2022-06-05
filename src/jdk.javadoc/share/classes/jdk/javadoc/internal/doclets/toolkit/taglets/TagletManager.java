@@ -83,7 +83,6 @@ import static javax.tools.DocumentationTool.Location.TAGLET_PATH;
 /**
  * Manages the {@code Taglet}s used by doclets.
  */
-
 public class TagletManager {
 
     /**
@@ -382,9 +381,15 @@ public class TagletManager {
             final Taglet taglet = allTaglets.get(name);
             // Check and verify tag usage
             if (taglet != null) {
+                if (taglet instanceof SimpleTaglet st && !st.enabled) {
+                    // taglet has been disabled
+                    return;
+                }
+
                 if (inlineTrees && !taglet.isInlineTag()) {
                     printTagMisuseWarn(ch, taglet, tag, "inline");
                 }
+
                 // nothing more to do
                 if (element == null) {
                     return;
