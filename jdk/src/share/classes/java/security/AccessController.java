@@ -491,6 +491,8 @@ public final class AccessController {
      * @see #doPrivileged(PrivilegedExceptionAction,AccessControlContext)
      * @see #doPrivilegedWithCombiner(PrivilegedExceptionAction)
      * @see java.security.DomainCombiner
+     *
+     *
      */
     @CallerSensitive
     public static native <T> T
@@ -600,6 +602,7 @@ public final class AccessController {
      *
      * @see #doPrivileged(PrivilegedAction)
      * @see #doPrivileged(PrivilegedAction,AccessControlContext)
+     *  @tips 本地方法
      */
     @CallerSensitive
     public static native <T> T
@@ -727,8 +730,9 @@ public final class AccessController {
      *
      * @return the access control context based on the current stack or
      *         null if there was only privileged system code.
+     *
+     * 本地方法，获取能够访问系统栈的决策上下文对象。
      */
-
     private static native AccessControlContext getStackAccessControlContext();
 
 

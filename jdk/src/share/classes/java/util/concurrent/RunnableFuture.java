@@ -44,6 +44,8 @@ package java.util.concurrent;
  * @since 1.6
  * @author Doug Lea
  * @param <V> The result type returned by this Future's {@code get} method
+ *
+ * @tips Future接口有一个重要的子接口，那就是RunnableFuture接口，
  */
 public interface RunnableFuture<V> extends Runnable, Future<V> {
     /**

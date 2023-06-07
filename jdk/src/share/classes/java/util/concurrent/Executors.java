@@ -105,6 +105,10 @@ public class Executors {
      * @return the newly created thread pool
      * @throws IllegalArgumentException if {@code parallelism <= 0}
      * @since 1.8
+     *
+     * @tips 在Java8的Executors工具类中，新增了如下创建线程池的方式。
+     * 本质上调用的是ForkJoinPool类的构造方法类创建线程池，而从代码结构上来看ForkJoinPool类继承自
+     * AbstractExecutorService抽象类。
      */
     public static ExecutorService newWorkStealingPool(int parallelism) {
         return new ForkJoinPool
@@ -280,6 +284,8 @@ public class Executors {
      * even if they are idle
      * @return a newly created scheduled thread pool
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
+     *
+     * @tips 这几个方法本质上调用的都是ScheduledThreadPoolExecutor类的构造方法
      */
     public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
         return new ScheduledThreadPoolExecutor(corePoolSize);
@@ -496,6 +502,8 @@ public class Executors {
 
     /**
      * A callable that runs given task and returns given result
+     *
+     * @tips 给定运行的任务和结果，运行给定的任务并返回给定的结果，
      */
     static final class RunnableAdapter<T> implements Callable<T> {
         final Runnable task;
@@ -511,10 +519,61 @@ public class Executors {
     }
 
     /**
+     *
+     * TaskCallable类是javafx.concurrent.Task类的静态内部类，TaskCallable类主要是实现了Callable接口并且被定义为FutureTask
+     * 的类，并且在这个类中允许我们拦截call()方法来更新task任务的状态。
+     *
+     * @Override public V call() throws Exception {
+     *              // 将task对象的started属性设置为true，表示任务已经开始，并且将任务的状态依次设置为
+     *              // State.SCHEDULED和State.RUNNING，依次触发任务的调度事件和运行事件。
+     *             task.started = true;
+     *             task.runLater(() -> {
+     *                 task.setState(State.SCHEDULED);
+     *                 task.setState(State.RUNNING);
+     *             });
+     *             try {
+     *                  // 执行Task对象的call()方法，返回泛型对象
+     *                 final V result = task.call();
+     *                 if (!task.isCancelled()) {
+     *                 // 如果任务没有被取消，则更新任务的缓存，将调用call()方法
+     *                  返回的泛型对象绑定到Task对象中的ObjectProperty对象中，
+     *                     task.runLater(() -> {
+     *                     // TASK 中的变量 private final ObjectProperty<V> value = new SimpleObjectProperty<>(this, "value");
+     *                         task.updateValue(result);
+     *                         // 将任务的状态设置为成功状态。
+     *                         task.setState(State.SUCCEEDED);
+     *                     });
+     *                     return result;
+     *                 } else {
+     *                     return null;
+     *                 }
+     *             } catch (final Throwable th) {
+     *                 task.runLater(() -> {
+     *                 // 如果程序抛出了异常或者错误，会进入catch()代码块，设置Task对象的Exception信息并将状态设置为State.FAILED
+     *                     task._setException(th);
+     *                     task.setState(State.FAILED);
+     *                 });
+     *                 // 判断异常或错误的类型，如果是Exception类型的异常，则直接强转为Exception类型的异常并抛出。
+     *                  否则，将异常或者错误封装为Exception对象并抛出，
+     *                 if (th instanceof Exception) {
+     *                     throw (Exception) th;
+     *                 } else {
+     *                     throw new Exception(th);
+     *                 }
+     *             }
+     *         }
+     */
+
+
+
+    /**
      * A callable that runs under established access control settings
+     *
+     * @tips PrivilegedCallable类是Callable接口的一个特殊实现类，它表明Callable对象有某种特权来访问系统的某种资源，
      */
     static final class PrivilegedCallable<T> implements Callable<T> {
         private final Callable<T> task;
+        // 可以理解为一个具有系统资源访问决策的上下文类
         private final AccessControlContext acc;
 
         PrivilegedCallable(Callable<T> task) {
@@ -522,6 +581,15 @@ public class Executors {
             this.acc = AccessController.getContext();
         }
 
+        /**
+         * 最终的执行情况是将PrivilegedExceptionAction接口对象和AccessControlContext对
+         * 象实例传递给这个本地方法执行。并且在PrivilegedExceptionAction接口对象的run()方法中调用Callable接口的call()方法来执行
+         * 最终的业务逻辑，并且返回泛型对象。
+         * PrivilegedCallableUsingCurrentClassLoader
+         *
+         * @return
+         * @throws Exception
+         */
         public T call() throws Exception {
             try {
                 return AccessController.doPrivileged(
@@ -539,6 +607,8 @@ public class Executors {
     /**
      * A callable that runs under established access control settings and
      * current ClassLoader
+     *
+     * @tips 此类表示为在已经建立的特定访问控制和当前的类加载器下运行的Callable类
      */
     static final class PrivilegedCallableUsingCurrentClassLoader<T> implements Callable<T> {
         private final Callable<T> task;
@@ -546,7 +616,10 @@ public class Executors {
         private final ClassLoader ccl;
 
         PrivilegedCallableUsingCurrentClassLoader(Callable<T> task) {
+            // 首先获取系统安全管理器对象实例，
             SecurityManager sm = System.getSecurityManager();
+            // 通过系统安全管理器对象实例检
+            //查是否具有获取ClassLoader和设置ContextClassLoader的权限。
             if (sm != null) {
                 // Calls to getContextClassLoader from this class
                 // never trigger a security check, but we check
@@ -562,20 +635,28 @@ public class Executors {
             this.ccl = Thread.currentThread().getContextClassLoader();
         }
 
+        // 调用call()方法来执行具体的业务逻辑
         public T call() throws Exception {
             try {
+                // 在call()方法中同样是通过调用AccessController类的本地方法doPrivileged，传递PrivilegedExceptionAction接口的实例对象和
+                //AccessControlContext类的对象实例。
                 return AccessController.doPrivileged(
                     new PrivilegedExceptionAction<T>() {
                         public T run() throws Exception {
                             Thread t = Thread.currentThread();
                             ClassLoader cl = t.getContextClassLoader();
+                            // 不止对象实例相同，而且内存地址也相同
                             if (ccl == cl) {
                                 return task.call();
                             } else {
+                                // 将PrivilegedExceptionAction对象的run()方法中的当前线程的
+                                //ContextClassLoader设置为在构造方法中获取的类加载器对象，
                                 t.setContextClassLoader(ccl);
                                 try {
                                     return task.call();
                                 } finally {
+                                    // 最终将当前
+                                    //线程的ContextClassLoader重置为之前的ContextClassLoader。
                                     t.setContextClassLoader(cl);
                                 }
                             }

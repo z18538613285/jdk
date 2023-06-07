@@ -2452,11 +2452,11 @@ public class ForkJoinPool extends AbstractExecutorService {
      * any security checks or parameter validation.  Invoked directly by
      * makeCommonPool.
      */
-    private ForkJoinPool(int parallelism,
-                         ForkJoinWorkerThreadFactory factory,
-                         UncaughtExceptionHandler handler,
-                         int mode,
-                         String workerNamePrefix) {
+    private ForkJoinPool(int parallelism, // 并发级别
+                         ForkJoinWorkerThreadFactory factory, // 创建线程的工厂类对象。
+                         UncaughtExceptionHandler handler, // 当线程池中的线程抛出未捕获的异常时，统一使用UncaughtExceptionHandler对象处理。
+                         int mode, // 取值为FIFO_QUEUE或者LIFO_QUEUE。
+                         String workerNamePrefix) {  // 执行任务的线程名称的前缀。
         this.workerNamePrefix = workerNamePrefix;
         this.factory = factory;
         this.ueh = handler;

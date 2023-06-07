@@ -100,6 +100,18 @@ class CalendarBuilder {
         return this;
     }
 
+    // 中先后调用了cal.clear()与cal.set()
+    // 也就是先清除cal对象中设置的值，再重新设置新的值。
+
+    /**
+     * 由于Calendar内部并没有线程安全机制，并且这两个操作也都不是原子性的，所以当多个线程同时操作一个SimpleDateFormat
+     * 时就会引起cal的值混乱。类似地， format()方法也存在同样的问题。
+     *
+     * 因此， SimpleDateFormat类不是线程安全的根本原因是：DateFormat类中的Calendar对象被多线程共享，而Calendar对象
+     * 本身不支持线程安全。
+     * @param cal
+     * @return
+     */
     Calendar establish(Calendar cal) {
         boolean weekDate = isSet(WEEK_YEAR)
                             && field[WEEK_YEAR] > field[YEAR];

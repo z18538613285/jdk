@@ -1530,6 +1530,7 @@ public class SimpleDateFormat extends DateFormat {
 
         Date parsedDate;
         try {
+            // 最后的返回值是通过调用CalendarBuilder.establish()方法获得的，而这个方法的参数正好就是前面的Calendar对象。
             parsedDate = calb.establish(calendar).getTime();
             // If the year value is ambiguous,
             // then the two-digit year == the default start year

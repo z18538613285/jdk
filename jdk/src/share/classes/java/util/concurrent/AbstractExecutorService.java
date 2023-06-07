@@ -67,6 +67,8 @@ import java.util.*;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ * @tips 派生自ExecutorService接口，实现了几个非常实现的方法，供子类进行调用。
  */
 public abstract class AbstractExecutorService implements ExecutorService {
 
@@ -81,6 +83,9 @@ public abstract class AbstractExecutorService implements ExecutorService {
      * the given value as its result and provide for cancellation of
      * the underlying task
      * @since 1.6
+     *
+     * @tips RunnableFuture类用于获取执行结果，在实际使用时，我们经常使用的是它的子类FutureTask，newTaskFor方法的作用就是将
+     * 任务封装成FutureTask对象，后续将FutureTask对象提交到线程池。
      */
     protected <T> RunnableFuture<T> newTaskFor(Runnable runnable, T value) {
         return new FutureTask<T>(runnable, value);
@@ -103,13 +108,20 @@ public abstract class AbstractExecutorService implements ExecutorService {
     /**
      * @throws RejectedExecutionException {@inheritDoc}
      * @throws NullPointerException       {@inheritDoc}
+     *
+     * @tips submit方法的逻辑比较简单，就是将任务封装成RunnableFuture对象并提交，执行任务后返回Future结果数据。
      */
     public Future<?> submit(Runnable task) {
         if (task == null) throw new NullPointerException();
         RunnableFuture<Void> ftask = newTaskFor(task, null);
+        // 本质上还是调用的Executor接口的execute方法
         execute(ftask);
         return ftask;
     }
+
+    /**
+     * 在非定时任务类的线程池中提交任务时，本质上都是调用的Executor接口的execute方法。
+     */
 
     /**
      * @throws RejectedExecutionException {@inheritDoc}
@@ -139,12 +151,17 @@ public abstract class AbstractExecutorService implements ExecutorService {
     private <T> T doInvokeAny(Collection<? extends Callable<T>> tasks,
                               boolean timed, long nanos)
         throws InterruptedException, ExecutionException, TimeoutException {
+        //提交的任务为空，抛出空指针异常
         if (tasks == null)
             throw new NullPointerException();
+        //记录待执行的任务的剩余数量
         int ntasks = tasks.size();
+        //任务集合中的数据为空，抛出非法参数异常
         if (ntasks == 0)
             throw new IllegalArgumentException();
         ArrayList<Future<T>> futures = new ArrayList<Future<T>>(ntasks);
+        //以当前实例对象作为参数构建ExecutorCompletionService对象
+        // ExecutorCompletionService负责执行任务，后面调用用poll返回第一个执行结果
         ExecutorCompletionService<T> ecs =
             new ExecutorCompletionService<T>(this);
 
@@ -157,34 +174,52 @@ public abstract class AbstractExecutorService implements ExecutorService {
         try {
             // Record exceptions so that if we fail to obtain any
             // result, we can throw the last exception we got.
+            // 记录可能抛出的执行异常
             ExecutionException ee = null;
+            // 初始化超时时间
             final long deadline = timed ? System.nanoTime() + nanos : 0L;
             Iterator<? extends Callable<T>> it = tasks.iterator();
 
             // Start one task for sure; the rest incrementally
+            //提交任务，并将返回的结果数据添加到futures集合中
+            //提交一个任务主要是确保在进入循环之前开始一个任务
             futures.add(ecs.submit(it.next()));
             --ntasks;
+            //记录正在执行的任务数量
             int active = 1;
 
             for (;;) {
+                //从完成任务的BlockingQueue队列中获取并移除下一个将要完成的任务的结果。
+                //如果BlockingQueue队列中中的数据为空，则返回null
+                //这里的poll()方法是非阻塞方法
                 Future<T> f = ecs.poll();
+                //获取的结果为空
                 if (f == null) {
+                    //集合中仍有未执行的任务数量
                     if (ntasks > 0) {
+                        //未执行的任务数量减1
                         --ntasks;
+                        //提交完成并将结果添加到futures集合中
                         futures.add(ecs.submit(it.next()));
+                        //正在执行的任务数量加•1
                         ++active;
                     }
+                    //所有任务执行完成，并且返回了结果数据，则退出循环
+                    //之所以处理active为0的情况，是因为poll()方法是非阻塞方法，可能导致未返回结果时active为0
                     else if (active == 0)
                         break;
+                    //如果timed为true，则执行获取结果数据时设置超时时间，也就是超时获取结果表示
                     else if (timed) {
                         f = ecs.poll(nanos, TimeUnit.NANOSECONDS);
                         if (f == null)
                             throw new TimeoutException();
                         nanos = deadline - System.nanoTime();
                     }
+                    //没有设置超时，并且所有任务都被提交了，则一直阻塞，直到返回一个执行结果
                     else
                         f = ecs.take();
                 }
+                //获取到执行结果，则将正在执行的任务减1，从Future中获取结果并返回
                 if (f != null) {
                     --active;
                     try {
@@ -202,6 +237,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
             throw ee;
 
         } finally {
+            //如果从所有执行的任务中获取到一个结果数据，则取消所有执行的任务，不再向下执行
             for (int i = 0, size = futures.size(); i < size; i++)
                 futures.get(i).cancel(true);
         }
@@ -228,26 +264,38 @@ public abstract class AbstractExecutorService implements ExecutorService {
         if (tasks == null)
             throw new NullPointerException();
         ArrayList<Future<T>> futures = new ArrayList<Future<T>>(tasks.size());
+        //标识所有任务是否完成
         boolean done = false;
         try {
+            //遍历所有任务
             for (Callable<T> t : tasks) {
+                // 将每个任务封装成RunnableFuture对象提交任务
                 RunnableFuture<T> f = newTaskFor(t);
+                //将结果数据添加到futures集合中
                 futures.add(f);
+                //执行任务
+                // invokeAll方法中本质上还是调用Executor接口的execute方法来提交任务。
                 execute(f);
             }
+            //遍历结果数据集合
             for (int i = 0, size = futures.size(); i < size; i++) {
                 Future<T> f = futures.get(i);
+                //任务没有完成
                 if (!f.isDone()) {
                     try {
+                        //阻塞等待任务完成并返回结果
                         f.get();
                     } catch (CancellationException ignore) {
                     } catch (ExecutionException ignore) {
                     }
                 }
             }
+            //任务完成（不管是正常结束还是异常完成）
             done = true;
+            //返回结果数据集合
             return futures;
         } finally {
+            //如果发生中断异常InterruptedException 则取消已经提交的任务
             if (!done)
                 for (int i = 0, size = futures.size(); i < size; i++)
                     futures.get(i).cancel(true);
@@ -272,15 +320,19 @@ public abstract class AbstractExecutorService implements ExecutorService {
             // Interleave time checks and calls to execute in case
             // executor doesn't have any/much parallelism.
             for (int i = 0; i < size; i++) {
+                // invokeAll方法中本质上还是调用Executor接口的execute方法来提交任务。
                 execute((Runnable)futures.get(i));
+                // 在添加执行任务时超时判断，如果超时则立刻返回futures集合
                 nanos = deadline - System.nanoTime();
                 if (nanos <= 0L)
                     return futures;
             }
 
+            // 遍历所有任务
             for (int i = 0; i < size; i++) {
                 Future<T> f = futures.get(i);
                 if (!f.isDone()) {
+                    //对结果进行判断时进行超时判断
                     if (nanos <= 0L)
                         return futures;
                     try {
@@ -290,6 +342,7 @@ public abstract class AbstractExecutorService implements ExecutorService {
                     } catch (TimeoutException toe) {
                         return futures;
                     }
+                    //重置任务的超时时间
                     nanos = deadline - System.nanoTime();
                 }
             }

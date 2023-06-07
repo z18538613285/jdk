@@ -43,8 +43,15 @@ import java.lang.ref.*;
  * @author  Josh Bloch and Doug Lea
  * @see     ThreadLocal
  * @since   1.2
+ *
+ * @tips ，InheritableThreadLocal类继承自ThreadLocal类，并且重写了ThreadLocal类的
+ * childValue()方法、getMap()方法和createMap()方法。
+ *
+ * 。也就是说，当调用ThreadLocal的set()方法时，创建的是当前Thread线程
+ * 的inheritableThreadLocals成员变量而不再是threadLocals成员变量。
+ *
+ * 我们需要思考一个问题：InheritableThreadLocal类的childValue()方法是何时被调用的呢？
  */
-
 public class InheritableThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Computes the child's initial value for this inheritable thread-local

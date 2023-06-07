@@ -124,6 +124,8 @@ package java.util.concurrent;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ * @tips 这个接口也是整个线程池中最顶层的接口，提供了一个无返回值的提交任务的方法。
  */
 public interface Executor {
 
@@ -136,6 +138,8 @@ public interface Executor {
      * @throws RejectedExecutionException if this task cannot be
      * accepted for execution
      * @throws NullPointerException if command is null
+     *
+     * @tips 提交运行任务，参数为Runnable接口对象，无返回值
      */
     void execute(Runnable command);
 }

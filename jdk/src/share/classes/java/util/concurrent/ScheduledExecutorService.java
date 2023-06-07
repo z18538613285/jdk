@@ -90,6 +90,9 @@ package java.util.concurrent;
  *
  * @since 1.5
  * @author Doug Lea
+ *
+ * @tips 派生自ExecutorService接口，拥有ExecutorService接口定义的全部方法，并扩
+ * 展了定时任务相关的方法。
  */
 public interface ScheduledExecutorService extends ExecutorService {
 
@@ -106,6 +109,8 @@ public interface ScheduledExecutorService extends ExecutorService {
      * @throws RejectedExecutionException if the task cannot be
      *         scheduled for execution
      * @throws NullPointerException if command is null
+     *
+     * @tips 延时delay时间来执行command任务，只执行一次
      */
     public ScheduledFuture<?> schedule(Runnable command,
                                        long delay, TimeUnit unit);
@@ -121,6 +126,8 @@ public interface ScheduledExecutorService extends ExecutorService {
      * @throws RejectedExecutionException if the task cannot be
      *         scheduled for execution
      * @throws NullPointerException if callable is null
+     *
+     * @tips 延时delay时间来执行callable任务，只执行一次
      */
     public <V> ScheduledFuture<V> schedule(Callable<V> callable,
                                            long delay, TimeUnit unit);
@@ -149,6 +156,8 @@ public interface ScheduledExecutorService extends ExecutorService {
      *         scheduled for execution
      * @throws NullPointerException if command is null
      * @throws IllegalArgumentException if period less than or equal to zero
+     *
+     * @tips 延时initialDelay时间首次执行command任务，之后每隔period时间执行一次
      */
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
                                                   long initialDelay,
@@ -176,6 +185,8 @@ public interface ScheduledExecutorService extends ExecutorService {
      *         scheduled for execution
      * @throws NullPointerException if command is null
      * @throws IllegalArgumentException if delay less than or equal to zero
+     *
+     * @tips 延时initialDelay时间首次执行command任务，之后每延时delay时间执行一次
      */
     public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
                                                      long initialDelay,

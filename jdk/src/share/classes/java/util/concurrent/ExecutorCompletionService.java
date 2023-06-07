@@ -178,6 +178,7 @@ public class ExecutorCompletionService<V> implements CompletionService<V> {
     public Future<V> submit(Callable<V> task) {
         if (task == null) throw new NullPointerException();
         RunnableFuture<V> f = newTaskFor(task);
+        // ExecutorCompletionService类中的submit方法本质上调用的还是Executor接口的execute方法。
         executor.execute(new QueueingFuture(f));
         return f;
     }

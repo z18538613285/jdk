@@ -152,6 +152,9 @@ public abstract class DateFormat extends Format {
      * appropriate for the {@link Locale} associated with this
      * <code>DateFormat</code>.
      * @serial
+     *
+     * @tips DateFormat类中维护了一个全局的Calendar变量
+     * 这个Calendar对象既用于格式化也用于解析日期时间。
      */
     protected Calendar calendar;
 

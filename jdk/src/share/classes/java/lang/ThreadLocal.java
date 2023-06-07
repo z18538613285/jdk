@@ -122,6 +122,8 @@ public class ThreadLocal<T> {
      * anonymous inner class will be used.
      *
      * @return the initial value for this thread-local
+     *
+     * @tips 通过initialValue()方法的源码可以看出，这个方法可以由子类覆写，在ThreadLocal类中，这个方法直接返回null。
      */
     protected T initialValue() {
         return null;
@@ -157,9 +159,13 @@ public class ThreadLocal<T> {
      * @return the current thread's value of this thread-local
      */
     public T get() {
+        //获取当前线程
         Thread t = Thread.currentThread();
+        //获取当前线程的threadLocals成员变量
         ThreadLocalMap map = getMap(t);
+        //获取的threadLocals变量不为空
         if (map != null) {
+            //返回本地变量对应的值
             ThreadLocalMap.Entry e = map.getEntry(this);
             if (e != null) {
                 @SuppressWarnings("unchecked")
@@ -167,6 +173,7 @@ public class ThreadLocal<T> {
                 return result;
             }
         }
+        //初始化threadLocals成员变量的值
         return setInitialValue();
     }
 
@@ -177,12 +184,16 @@ public class ThreadLocal<T> {
      * @return the initial value
      */
     private T setInitialValue() {
+        //调用初始化Value的方法
         T value = initialValue();
         Thread t = Thread.currentThread();
+        //根据当前线程获取threadLocals成员变量
         ThreadLocalMap map = getMap(t);
         if (map != null)
+            //threadLocals不为空，则设置value值
             map.set(this, value);
         else
+            //threadLocals为空,创建threadLocals变量
             createMap(t, value);
         return value;
     }
@@ -197,11 +208,17 @@ public class ThreadLocal<T> {
      *        this thread-local.
      */
     public void set(T value) {
+        //获取当前线程
         Thread t = Thread.currentThread();
+        //以当前线程为Key，获取ThreadLocalMap对象
         ThreadLocalMap map = getMap(t);
+        //获取的ThreadLocalMap对象不为空
         if (map != null)
+            //设置value的值
+            // key为当前ThreadLocal的this对象
             map.set(this, value);
         else
+            //获取的ThreadLocalMap对象为空，创建Thread类中的threadLocals变量
             createMap(t, value);
     }
 
@@ -215,10 +232,16 @@ public class ThreadLocal<T> {
      * {@code initialValue} method in the current thread.
      *
      * @since 1.5
+     *
+     * @tips 如果调用线程一致不终止，则本地变量会一直存放在调用线程的threadLocals成员变量中，所以，如果不需要使用本地变
+     * 量时，可以通过调用ThreadLocal的remove()方法，将本地变量从当前线程的threadLocals成员变量中删除，以免出现内存溢
+     * 出的问题
      */
      public void remove() {
+         //根据当前线程获取threadLocals成员变量
          ThreadLocalMap m = getMap(Thread.currentThread());
          if (m != null)
+             //threadLocals成员变量不为空，则移除value值
              m.remove(this);
      }
 
@@ -228,6 +251,8 @@ public class ThreadLocal<T> {
      *
      * @param  t the current thread
      * @return the map
+     *
+     * @tips 获取的是线程变量自身的threadLocals成员变量。
      */
     ThreadLocalMap getMap(Thread t) {
         return t.threadLocals;
@@ -241,6 +266,7 @@ public class ThreadLocal<T> {
      * @param firstValue value for the initial entry of the map
      */
     void createMap(Thread t, T firstValue) {
+        // 也就是创建当前线程的threadLocals变量。
         t.threadLocals = new ThreadLocalMap(this, firstValue);
     }
 
@@ -250,6 +276,8 @@ public class ThreadLocal<T> {
      *
      * @param  parentMap the map associated with parent thread
      * @return a map containing the parent's inheritable bindings
+     *
+     * @tips
      */
     static ThreadLocalMap createInheritedMap(ThreadLocalMap parentMap) {
         return new ThreadLocalMap(parentMap);
@@ -375,6 +403,12 @@ public class ThreadLocal<T> {
          * from given parent map. Called only by createInheritedMap.
          *
          * @param parentMap the map associated with parent thread.
+         *
+         * @tips 调用了InheritableThreadLocal类重写的childValue()方法。而InheritableThreadLocal类通
+         * 过重写getMap()方法和createMap()方法，让本地变量保存到了Thread线程的inheritableThreadLocals变量中，线程通过
+         * InheritableThreadLocal类的set()方法和get()方法设置变量时，就会创建当前线程的inheritableThreadLocals变量。此时，如果
+         * 父线程创建子线程，在Thread类的构造函数中会把父线程中的inheritableThreadLocals变量里面的本地变量复制一份保存到子
+         * 线程的inheritableThreadLocals变量中。
          */
         private ThreadLocalMap(ThreadLocalMap parentMap) {
             Entry[] parentTable = parentMap.table;
@@ -388,6 +422,7 @@ public class ThreadLocal<T> {
                     @SuppressWarnings("unchecked")
                     ThreadLocal<Object> key = (ThreadLocal<Object>) e.get();
                     if (key != null) {
+                        //调用重写的childValue方法
                         Object value = key.childValue(e.value);
                         Entry c = new Entry(key, value);
                         int h = key.threadLocalHashCode & (len - 1);
